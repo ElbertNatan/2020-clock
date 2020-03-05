@@ -1,3 +1,4 @@
+ 
 import React from 'react';
 
 class WorldClock extends React.Component {
@@ -8,22 +9,30 @@ class WorldClock extends React.Component {
     };
   }
   componentDidMount() {
-    this.timerID = setInterval(
-      () => this.tick(),
-      1000
-    );
+    fetch("http://worldtimeapi.org/api/timezone/America/Fortaleza")
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({
+            isLoaded: true,
+            date: result.utc_datetime
+          });
+        },
+        // Nota: É importante lidar com os erros aqui
+        // em vez de um bloco catch() para não recebermos
+        // exceções de erros dos componentes.
+        (error) => {
+          this.setState({
+            isLoaded: false,
+            error
+          });
+        }
+      )
   }
 
-  tick() {
-    this.setState({
-      date: new Date(),
-      local: "mudou"
-    });
-    this.state = {date: new Date};
-  }
 
   render() {
-    let {date, local} = this.state;
+    let {date, isLoaded, local} = this.state;
     if (!isLoaded)
     {
       return (<div><h1>Loading...</h1></div>)
@@ -31,7 +40,7 @@ class WorldClock extends React.Component {
     else
     return (
       <div>
-        <h2>World Clock IS >>{date.toLocaleTimeString()}.</h2>
+        <h2>World Clock IS >>{date.toISOString}.</h2>
         
       </div>
     );
